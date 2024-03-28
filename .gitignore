@@ -1,0 +1,6 @@
+checkpoints/
+dataset/HumanML3D/
+dataset/KIT-ML/
+**/**__pycache__
+z-others/
+**.DS_Store

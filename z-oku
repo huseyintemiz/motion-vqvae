@@ -1,0 +1,79 @@
+cp -r ../HumanML3D/HumanML3D ./dataset/HumanML3D
+
+
+cp -r /home/dipcik/PycharmPhd/HumanML3D/HumanML3D ./dataset/HumanML3D
+cp -r /home/dipcik/PycharmPhd/HumanML3D/KIT-ML ./dataset/KIT-ML
+
+
+
+
+   "program": "${workspaceFolder}/train_vq.py",
+            "args": [
+                "--name", "rvq_name",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--batch_size", "256",
+                "--num_quantizers", "6",
+                "--max_epoch", "50",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05"
+
+python train_vq.py --name lfq_name --gpu_id 0 --dataset_name t2m --batch_size 64 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05
+
+scipy                   1.10.1 ( venv 3.10
+
+
+Thank you！ I found the data have nan and deleted them. There were only *007975.npy has nan.
+
+5000 iter -> 10 minutes
+360850 iter -> 12 hours
+
+Total parameters of all models: 19.436807M
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 23384/23384 [00:27<00:00, 848.13it/s]
+Total number of motions 20942, snippets 1847722
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1460/1460 [00:01<00:00, 817.82it/s]
+Total number of motions 1300, snippets 116698
+Reading ./checkpoints/t2m/Comp_v6_KLD005/opt.txt
+Loading dataset t2m ...
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4384/4384 [00:06<00:00, 684.86it/s]
+Pointer Pointing at 0
+Ground Truth Dataset Loading Completed!!!
+Total Epochs: 50, Total Iters: 360850
+Iters Per Epoch, Training: 7217, Validation: 145
+/home/dipcik/PycharmPhd/momask-codes/models/t2m_eval_wrapper.py:73: UserWarning: __floordiv__ is deprecated, and its behavior will change in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values. To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor').
+  m_lens = m_lens // self.opt.unit_length
+-->      Eva. Ep 0:, FID. 80.0095, Diversity Real. 9.5737, Diversity. 0.5224, R_precision_real. (0.5084, 0.7054, 0.8006), R_precision. (0.0276, 0.0565, 0.0841), matching_score_real. 2.9849, matching_score_pred. 8.8400
+--> -->          FID Improved from 1000.00000 to 80.00949 !!!
+--> -->          Diversity Improved from 100.00000 to 0.52244 !!!
+--> -->          Top1 Improved from 0.00000 to 0.02759 !!!
+--> -->          Top2 Improved from 0.00000 to 0.05647!!!
+--> -->          Top3 Improved from 0.00000 to 0.08405 !!!
+--> -->          matching_score Improved from 100.00000 to 8.83996 !!!
+ep/it: 0-   9 niter:    10  0m 16s (- 9779m 40s) completed:  0%) loss: 1.0543  loss_rec: 0.8596  loss_vel: 0.3874  loss_commit: 0.0486  perplexity: 384.4989  lr: 0.0000 
+
+
+
+
+
+0.0002 
+ep/it: 0-7179 niter:  7180  18m 57s (- 933m 40s) completed:  1%) loss: 0.2690  loss_rec: 0.1071  loss_vel: 0.0304  loss_commit: 7.3331  perplexity: 346.1653  lr: 0.0002 
+ep/it: 0-7189 niter:  7190  18m 58s (- 933m 37s) completed:  1%) loss: 0.2488  loss_rec: 0.0948  loss_vel: 0.0244  loss_commit: 7.0877  perplexity: 347.2835  lr: 0.0002 
+ep/it: 0-7199 niter:  7200  19m 0s (- 933m 35s) completed:  1%) loss: 0.2264  loss_rec: 0.0855  loss_vel: 0.0201  loss_commit: 6.5433  perplexity: 349.0159  lr: 0.0002 
+ep/it: 0-7209 niter:  7210  19m 2s (- 933m 37s) completed:  1%) loss: 0.2469  loss_rec: 0.0922  loss_vel: 0.0236  loss_commit: 7.1452  perplexity: 351.8425  lr: 0.0002 
+Validation time:
+Validation Loss: 0.23666 Reconstruction: 0.08647, Velocity: 0.02211, Commit: 6.95642
+-->      Eva. Ep 1:, FID. 0.2987, Diversity Real. 9.2589, Diversity. 9.5587, R_precision_real. (0.5084, 0.7006, 0.7955), R_precision. (0.4856, 0.6726, 0.7739), matching_score_real. 2.9970, matching_score_pred. 3.1537
+--> -->          FID Improved from 80.00949 to 0.29875 !!!
+--> -->          Diversity Improved from 0.52244 to 9.55869 !!!
+--> -->          Top1 Improved from 0.02759 to 0.48556 !!!
+--> -->          Top2 Improved from 0.05647 to 0.67263!!!
+--> -->          Top3 Improved from 0.08405 to 0.77392 !!!
+--> -->          matching_score Improved from 8.83996 to 3.15371 !!!
+ep/it: 1-   2 niter:  7220  19m 49s (- 970m 48s) completed:  2%) loss: 0.2365  loss_rec: 0.0871  loss_vel: 0.0217  loss_commit: 6.9262  perplexity: 348.1041  lr: 0.0002 
+ep/it: 1-  12 niter:  7230  19m 50s (- 970m 42s) completed:  2%) loss: 0.2335  loss_rec: 0.0845  loss_vel: 0.0206  loss_commit: 6.9371  perplexity: 353.2462  lr: 0.0002 
+ep/it: 1-  22 niter:  7240  19m 52s (- 970m 35s) completed:  2%) loss: 0.2546  loss_
+
+
+
+
+python train_vq.py --name lfq_namexx --gpu_id 0 --dataset_name t2m --batch_size 64 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05

@@ -1,0 +1,9 @@
+vector_quantize_pytorch==1.14.1
+tensorboard
+clip @ git+https://github.com/openai/CLIP.git
+scipy==1.10.1
+numpy==1.21.5
+matplotlib==3.8.3
+#scipy==1.11.4
+#numpy==1.25.2
+
