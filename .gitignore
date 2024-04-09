@@ -1,4 +1,5 @@
 checkpoints/
+log/
 dataset/HumanML3D/
 dataset/KIT-ML/
 **/**__pycache__

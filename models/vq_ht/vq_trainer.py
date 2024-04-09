@@ -113,22 +113,30 @@ class RVQTokenizerTrainer:
         while epoch < self.opt.max_epoch:
             self.vq_model.train()
             for i, batch_data in enumerate(train_loader):
+                # if i == 20:
+                #     break
                 it += 1
                 if it < self.opt.warm_up_iter:
                     current_lr = self.update_lr_warm_up(it, self.opt.warm_up_iter, self.opt.lr)
                 loss, loss_rec, loss_vel, loss_commit, perplexity = self.forward(batch_data)
                 self.opt_vq_model.zero_grad()
-                loss.backward()
+                # loss.backward()
+                loss.mean().backward()# hus
+                
                 self.opt_vq_model.step()
 
                 if it >= self.opt.warm_up_iter:
                     self.scheduler.step()
                 
-                logs['loss'] += loss.item()
+                # logs['loss'] += loss.item()
+                logs['loss'] += loss.mean().item() # hus
+
                 logs['loss_rec'] += loss_rec.item()
                 # Note it not necessarily velocity, too lazy to change the name now
-                logs['loss_vel'] += loss_vel.item()
-                logs['loss_commit'] += loss_commit.item()
+                logs['loss_vel'] += loss_vel.item() 
+                # logs['loss_commit'] += loss_commit.item()
+                logs['loss_commit'] += loss_commit.mean().item() # hus
+                                
                 logs['perplexity'] += perplexity.item()
                 logs['lr'] += self.opt_vq_model.param_groups[0]['lr']
 
@@ -163,10 +171,12 @@ class RVQTokenizerTrainer:
                     loss, loss_rec, loss_vel, loss_commit, perplexity = self.forward(batch_data)
                     # val_loss_rec += self.l1_criterion(self.recon_motions, self.motions).item()
                     # val_loss_emb += self.embedding_loss.item()
-                    val_loss.append(loss.item())
+                    # val_loss.append(loss.item())
+                    val_loss.append(loss.mean().item())
                     val_loss_rec.append(loss_rec.item())
                     val_loss_vel.append(loss_vel.item())
-                    val_loss_commit.append(loss_commit.item())
+                    val_loss_commit.append(loss_commit.item()) # hus
+                    # val_loss_commit.append(loss_commit.mean().item())
                     val_perpexity.append(perplexity.item())
 
             # val_loss = val_loss_rec / (len(val_dataloader) + 1)

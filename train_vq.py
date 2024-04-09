@@ -119,3 +119,6 @@ if __name__ == "__main__":
 ## train_vq.py --dataset_name kit --batch_size 256 --name VQVAE_dp2_b256 --gpu_id 2
 ## train_vq.py --dataset_name kit --batch_size 1024 --name VQVAE_dp2_b1024 --gpu_id 1
 ## python train_vq.py --dataset_name kit --batch_size 256 --name VQVAE_dp1_b256 --gpu_id 2
+
+## python train_vq.py --name lfq_name --gpu_id 0 --dataset_name t2m --batch_size 64 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05
+# python train_vq.py --name base_train --gpu_id 0 --dataset_name t2m --batch_size 64 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05

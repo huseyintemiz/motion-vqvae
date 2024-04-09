@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Train VQ Model",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "rvq_name_ht",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--batch_size", "64",
+                "--num_quantizers", "6",
+                "--max_epoch", "50",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05"
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        }
+    ]
+}
