@@ -20,6 +20,25 @@
             "env": {
                 "PYTHONUNBUFFERED": "1"
             }
-        }
+        },
+        {
+            "name": "Eval VQ Model",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval_t2m_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "rvq_nq6_dc512_nc512_noshare_qdp0.2",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--ext", "rvq_nq6"
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
     ]
 }
+
+
+python eval_t2m_vq.py --gpu_id 0 --name rvq_nq6_dc512_nc512_noshare_qdp0.2 --dataset_name t2m --ext rvq_nq6
