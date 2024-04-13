@@ -53,15 +53,16 @@ class RVQVAE(nn.Module):
            
           
         }
-        self.quantizer = ResidualVQ(**rvqvae_config)
+        # self.quantizer = ResidualVQ(**rvqvae_config)
 
-        self.quantizer =  VectorQuantize(
-            dim = code_dim,
-            use_cosine_sim = True ,
-            codebook_size = nb_code,     # codebook size
-            decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
-            commitment_weight = 1.   # the weight on the commitment loss
-        )
+        # self.quantizer =  VectorQuantize(
+        #     dim = code_dim,
+        #     use_cosine_sim = True ,
+        #     codebook_size = nb_code,     # codebook size
+        #     decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
+        #     commitment_weight = 1.   # the weight on the commitment loss
+        # )
+
         # Orthogonal regularization loss
         # self.quantizer = VectorQuantize(
         #     dim = code_dim,
@@ -82,13 +83,14 @@ class RVQVAE(nn.Module):
         # )
 
         # lfq
-        # self.quantizer = ResidualLFQ(
-        #                     dim=512,#quantize_dim
-        #                     codebook_size = 2**14, # 2**16
-        #                     num_quantizers = 6 #,
-        #                     # **vq_kwargs
-        #                 )
-        self.quantizer = LFQ(dim=code_dim, codebook_size=nb_code)###denemece 
+        self.quantizer = ResidualLFQ(
+                            dim=512,#quantize_dim
+                            codebook_size = 2**14, # 2**16
+                            num_quantizers = 6 #,
+                            # **vq_kwargs
+                        )
+
+        # self.quantizer = LFQ(dim=code_dim, codebook_size=nb_code)###denemece 
 
 
 
