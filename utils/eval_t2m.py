@@ -45,7 +45,8 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, ep, best_fid, best_div, b
 
         # pred_pose_eval = torch.zeros((bs, seq, motion.shape[-1])).cuda()
 
-        pred_pose_eval, loss_commit, perplexity = net(motion)
+        # pred_pose_eval, loss_commit, perplexity = net(motion)
+        pred_pose_eval, all_loss = net(motion)
 
         et_pred, em_pred = eval_wrapper.get_co_embeddings(word_embeddings, pos_one_hots, sent_len, pred_pose_eval,
                                                           m_length)
@@ -165,7 +166,9 @@ def evaluation_vqvae_plus_mpjpe(val_loader, net, repeat_id, eval_wrapper, num_jo
 
         # pred_pose_eval = torch.zeros((bs, seq, motion.shape[-1])).cuda()
 
-        pred_pose_eval, loss_commit, perplexity = net(motion)
+        # pred_pose_eval, loss_commit, perplexity = net(motion)
+        pred_pose_eval, loss_commit = net(motion)
+
         # all_indices,_  = net.encode(motion)
         # pred_pose_eval = net.forward_decoder(all_indices[..., :1])
 

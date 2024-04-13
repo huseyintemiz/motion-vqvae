@@ -2,7 +2,10 @@ import random
 
 import torch.nn as nn
 from models.vq.encdec import Encoder, Decoder
-from models.vq.residual_vq import ResidualVQ
+# from models.vq.residual_vq import ResidualVQ
+
+from vector_quantize_pytorch import ResidualVQ,ResidualLFQ,LFQ,VectorQuantize,GroupedResidualVQ,RandomProjectionQuantizer
+
     
 class RVQVAE(nn.Module):
     def __init__(self,
@@ -28,16 +31,74 @@ class RVQVAE(nn.Module):
                                dilation_growth_rate, activation=activation, norm=norm)
         self.decoder = Decoder(input_width, output_emb_width, down_t, stride_t, width, depth,
                                dilation_growth_rate, activation=activation, norm=norm)
+        # rvqvae_config = {
+        #     'dim':code_dim, 
+        #     'num_quantizers': args.num_quantizers,
+        #     'shared_codebook': args.shared_codebook,
+        #     'quantize_dropout_prob': args.quantize_dropout_prob,
+        #     'quantize_dropout_cutoff_index': 0,
+        #     'nb_code': nb_code,
+        #     'code_dim':code_dim, 
+        #     'args': args,
+        # }
         rvqvae_config = {
-            'num_quantizers': args.num_quantizers,
+            'dim':code_dim, 
+            'num_quantizers': args.num_quantizers, 
+            'codebook_size':nb_code, 
+         
             'shared_codebook': args.shared_codebook,
-            'quantize_dropout_prob': args.quantize_dropout_prob,
+            
+            'quantize_dropout': args.quantize_dropout_prob > 0,
             'quantize_dropout_cutoff_index': 0,
-            'nb_code': nb_code,
-            'code_dim':code_dim, 
-            'args': args,
+           
+          
         }
         self.quantizer = ResidualVQ(**rvqvae_config)
+
+        self.quantizer =  VectorQuantize(
+            dim = code_dim,
+            use_cosine_sim = True ,
+            codebook_size = nb_code,     # codebook size
+            decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
+            commitment_weight = 1.   # the weight on the commitment loss
+        )
+        # Orthogonal regularization loss
+        # self.quantizer = VectorQuantize(
+        #     dim = code_dim,
+        #     codebook_size = nb_code,  
+        #     # accept_image_fmap = True,                   # set this true to be able to pass in an image feature map
+        #     orthogonal_reg_weight = 10,                 # in paper, they recommended a value of 10
+        #     orthogonal_reg_max_codes = 128,             # this would randomly sample from the codebook for the orthogonal regularization loss, for limiting memory usage
+        #     orthogonal_reg_active_codes_only = False    # set this to True if you have a very large codebook, and would only like to enforce the loss on the activated codes per batch
+        # )
+
+        # Multi-headed VQ
+        # self.quantizer  = VectorQuantize( 
+        #     dim = code_dim,
+        #     codebook_size = 8196,                   # a number of papers have shown smaller codebook dimension to be acceptable
+        #     heads = 8,                          # number of heads to vector quantize, codebook shared across all heads
+        #     separate_codebook_per_head = True,  # whether to have a separate codebook per head. False would mean 1 shared codebook
+            
+        # )
+
+        # lfq
+        # self.quantizer = ResidualLFQ(
+        #                     dim=512,#quantize_dim
+        #                     codebook_size = 2**14, # 2**16
+        #                     num_quantizers = 6 #,
+        #                     # **vq_kwargs
+        #                 )
+        self.quantizer = LFQ(dim=code_dim, codebook_size=nb_code)###denemece 
+
+
+
+        # self.quantizer = GroupedResidualVQ(
+        #     dim = code_dim,
+        #     num_quantizers = 8,      # specify number of quantizers
+        #     groups = 2,
+        #     codebook_size = 1024,    # codebook size
+        # )
+
 
     def preprocess(self, x):
         # (bs, T, Jx3) -> (bs, Jx3, T)
@@ -66,16 +127,23 @@ class RVQVAE(nn.Module):
         # Encode
         x_encoder = self.encoder(x_in)
 
+        #new  ht 
+        x_encoder = self.preprocess(x_encoder)
+
         ## quantization
         # x_quantized, code_idx, commit_loss, perplexity = self.quantizer(x_encoder, sample_codebook_temp=0.5,
         #                                                                 force_dropout_index=0) #TODO hardcode
-        x_quantized, code_idx, commit_loss, perplexity = self.quantizer(x_encoder, sample_codebook_temp=0.5)
+        # x_quantized, code_idx, all_loss = self.quantizer(x_encoder, sample_codebook_temp=0.5)# for residual vq
+        x_quantized, code_idx, all_loss = self.quantizer(x_encoder)
+# 
+        #new  ht 
+        x_quantized = self.preprocess(x_quantized)
 
         # print(code_idx[0, :, 1])
         ## decoder
         x_out = self.decoder(x_quantized)
         # x_out = self.postprocess(x_decoder)
-        return x_out, commit_loss, perplexity
+        return x_out, all_loss
 
     def forward_decoder(self, x):
         x_d = self.quantizer.get_codes_from_indices(x)

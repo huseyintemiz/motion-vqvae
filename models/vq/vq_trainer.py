@@ -37,7 +37,9 @@ class RVQTokenizerTrainer:
 
     def forward(self, batch_data):
         motions = batch_data.detach().to(self.device).float()
-        pred_motion, loss_commit, perplexity = self.vq_model(motions)
+        # pred_motion, loss_commit, perplexity = self.vq_model(motions)
+        pred_motion, loss_commit = self.vq_model(motions)
+
         
         self.motions = motions
         self.pred_motion = pred_motion
@@ -51,7 +53,8 @@ class RVQTokenizerTrainer:
 
         # return loss, loss_rec, loss_vel, loss_commit, perplexity
         # return loss, loss_rec, loss_percept, loss_commit, perplexity
-        return loss, loss_rec, loss_explicit, loss_commit, perplexity
+        perplexity = 0 
+        return loss, loss_rec, loss_explicit, loss_commit
 
 
     # @staticmethod
@@ -114,22 +117,25 @@ class RVQTokenizerTrainer:
             self.vq_model.train()
             for i, batch_data in enumerate(train_loader):
                 it += 1
+                if it > 200:
+                    break
+
                 if it < self.opt.warm_up_iter:
                     current_lr = self.update_lr_warm_up(it, self.opt.warm_up_iter, self.opt.lr)
-                loss, loss_rec, loss_vel, loss_commit, perplexity = self.forward(batch_data)
+                loss, loss_rec, loss_vel, loss_commit = self.forward(batch_data)
                 self.opt_vq_model.zero_grad()
-                loss.backward()
+                loss.sum().backward()
                 self.opt_vq_model.step()
 
                 if it >= self.opt.warm_up_iter:
                     self.scheduler.step()
                 
-                logs['loss'] += loss.item()
+                logs['loss'] += loss.sum().item()
                 logs['loss_rec'] += loss_rec.item()
                 # Note it not necessarily velocity, too lazy to change the name now
                 logs['loss_vel'] += loss_vel.item()
-                logs['loss_commit'] += loss_commit.item()
-                logs['perplexity'] += perplexity.item()
+                logs['loss_commit'] += loss_commit.sum().item()
+                # logs['perplexity'] += perplexity.item()
                 logs['lr'] += self.opt_vq_model.param_groups[0]['lr']
 
                 if it % self.opt.log_every == 0:
@@ -160,14 +166,14 @@ class RVQTokenizerTrainer:
             val_perpexity = []
             with torch.no_grad():
                 for i, batch_data in enumerate(val_loader):
-                    loss, loss_rec, loss_vel, loss_commit, perplexity = self.forward(batch_data)
+                    loss, loss_rec, loss_vel, loss_commit = self.forward(batch_data)
                     # val_loss_rec += self.l1_criterion(self.recon_motions, self.motions).item()
                     # val_loss_emb += self.embedding_loss.item()
-                    val_loss.append(loss.item())
+                    val_loss.append(loss.sum().item())
                     val_loss_rec.append(loss_rec.item())
                     val_loss_vel.append(loss_vel.item())
-                    val_loss_commit.append(loss_commit.item())
-                    val_perpexity.append(perplexity.item())
+                    val_loss_commit.append(loss_commit.sum().item())
+                    # val_perpexity.append(perplexity.item())
 
             # val_loss = val_loss_rec / (len(val_dataloader) + 1)
             # val_loss = val_loss / (len(val_dataloader) + 1)
@@ -177,7 +183,7 @@ class RVQTokenizerTrainer:
             self.logger.add_scalar('Val/loss_rec', sum(val_loss_rec) / len(val_loss_rec), epoch)
             self.logger.add_scalar('Val/loss_vel', sum(val_loss_vel) / len(val_loss_vel), epoch)
             self.logger.add_scalar('Val/loss_commit', sum(val_loss_commit) / len(val_loss), epoch)
-            self.logger.add_scalar('Val/loss_perplexity', sum(val_perpexity) / len(val_loss_rec), epoch)
+            # self.logger.add_scalar('Val/loss_perplexity', sum(val_perpexity) / len(val_loss_rec), epoch)
 
             print('Validation Loss: %.5f Reconstruction: %.5f, Velocity: %.5f, Commit: %.5f' %
                   (sum(val_loss)/len(val_loss), sum(val_loss_rec)/len(val_loss), 
