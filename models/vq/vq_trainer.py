@@ -190,13 +190,12 @@ class RVQTokenizerTrainer:
                 if self.opt.gdrive_save:
                     source_path = pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch))
                     
-                    destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/sample_data/{self.opt.name}/'
+                    destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{self.opt.name}/'
                     
                     if not os.path.exists(destination_path):
                         print(f"File not found: {destination_path}")
-                        continue
-                    else:
                         os.mkdir(destination_path)
+                
                         
 
                     shutil.copy(source_path, destination_path)
