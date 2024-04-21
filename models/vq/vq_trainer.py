@@ -189,15 +189,21 @@ class RVQTokenizerTrainer:
                     logs = defaultdict(def_value, OrderedDict())
                     print_current_loss(start_time, it, total_iters, mean_loss, epoch=epoch, inner_iter=i)
 
-                if it % self.opt.save_latest == 0:
-                    self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
-                    #copy to gdrive
+                # if it % self.opt.save_latest == 0:
+                #     self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
+                #     #copy to gdrive
                 
                 # exit for loop for debugging
                 if self.opt.demo_run and i > 200:
                     break
 
             self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
+            if self.opt.gdrive_save:
+                source_path = pjoin(self.opt.model_dir, 'latest.tar')
+                destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{self.opt.name}/'
+            
+                shutil.copy(source_path, destination_path)
+                print(f"File (latest.tar) copied from (gdrive) {source_path} to {destination_path}.")
 
             epoch += 1
             if epoch % self.opt.save_every_e == 0:
