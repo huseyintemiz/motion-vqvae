@@ -111,6 +111,13 @@ class RVQTokenizerTrainer:
 
     def train(self, train_loader, val_loader, eval_val_loader, eval_wrapper, plot_eval=None):
         self.vq_model.to(self.device)
+        
+        if self.opt.gdrive_save:    
+            destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{self.opt.name}/'
+            
+            if not os.path.exists(destination_path):
+                print(f"File not found: {destination_path}")
+                os.mkdir(destination_path)
 
         self.opt_vq_model = optim.AdamW(self.vq_model.parameters(), lr=self.opt.lr, betas=(0.9, 0.99), weight_decay=self.opt.weight_decay)
         self.scheduler = torch.optim.lr_scheduler.MultiStepLR(self.opt_vq_model, milestones=self.opt.milestones, gamma=self.opt.gamma)
@@ -119,8 +126,16 @@ class RVQTokenizerTrainer:
         it = 0
         if self.opt.is_continue:
             model_dir = pjoin(self.opt.model_dir, 'latest.tar')
+            
+            if self.opt.gdrive_save and not os.path.exists(model_dir):
+                source_path = pjoin(self.opt.model_dir, 'latest.tar')
+                shutil.copy(destination_path+ 'latest.tar',self.opt.model_dir )
+                print(f"File (latest.tar) copied from gdrive {destination_path} to  local: {model_dir}.")
+            
             epoch, it = self.resume(model_dir)
             print("Load model epoch:%d iterations:%d"%(epoch, it))
+            
+        
 
         start_time = time.time()
         total_iters = self.opt.max_epoch * len(train_loader)
