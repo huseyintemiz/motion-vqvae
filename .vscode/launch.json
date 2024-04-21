@@ -15,7 +15,10 @@
                 "--num_quantizers", "6",
                 "--max_epoch", "50",
                 "--quantize_dropout_prob", "0.2",
-                "--gamma", "0.05"
+                "--gamma", "0.05",
+                "--train_env","colab",
+                "--gdrive_save","True",
+                "--demo_run","True",
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"

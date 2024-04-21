@@ -50,9 +50,8 @@ class RVQVAE(nn.Module):
             
             'quantize_dropout': args.quantize_dropout_prob > 0,
             'quantize_dropout_cutoff_index': 0,
-           
-          
         }
+        
         print(f"args.vq_arch_option: {args.vq_arch_option}")
         
         if args.vq_arch_option == 'residual_vq':
@@ -69,7 +68,7 @@ class RVQVAE(nn.Module):
                 commitment_weight = 1.   # the weight on the commitment loss
             )
         elif args.vq_arch_option == 'vq_orthogonal':
-        # Orthogonal regularization loss
+            # Orthogonal regularization loss
             self.quantizer = VectorQuantize(
                 dim = code_dim,
                 codebook_size = nb_code,  

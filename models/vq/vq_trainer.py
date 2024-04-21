@@ -13,6 +13,7 @@ from collections import OrderedDict, defaultdict
 from utils.eval_t2m import evaluation_vqvae
 from utils.utils import print_current_loss
 import wandb
+import shutil
 
 
 import os
@@ -33,15 +34,14 @@ if WANDB:
                     })
             
 
-GDRIVE_SAVE = False
+# GDRIVE_SAVE = False
 
-if GDRIVE_SAVE:
-    print("Mounting Google Drive...")
+# if GDRIVE_SAVE:
+#     print("Mounting Google Drive...")
 
-    from google.colab import drive
-    import shutil
+#     # from google.colab import drive
 
-    drive.mount('/content/drive')
+#     # drive.mount('/content/drive')
 
 
 class RVQTokenizerTrainer:
@@ -179,7 +179,7 @@ class RVQTokenizerTrainer:
                     #copy to gdrive
                 
                 # exit for loop for debugging
-                if i > 500:
+                if self.opt.demo_run and i > 200:
                     break
 
             self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
@@ -187,12 +187,21 @@ class RVQTokenizerTrainer:
             epoch += 1
             if epoch % self.opt.save_every_e == 0:
                 self.save(pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch)), epoch, total_it=it)
-                if GDRIVE_SAVE:
+                if self.opt.gdrive_save:
                     source_path = pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch))
-                    destination_path = '/content/drive/MyDrive/MotionData/motion_mount/sample_data'
-                    # # Copy the file
-                    shutil.copytree(source_path, destination_path)
-                    print(f"File copied from {source_path} to {destination_path}.")
+                    
+                    destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/sample_data/{self.opt.name}/'
+                    
+                    if not os.path.exists(destination_path):
+                        print(f"File not found: {destination_path}")
+                        continue
+                    else:
+                        os.mkdir(destination_path)
+                        
+
+                    shutil.copy(source_path, destination_path)
+
+                    print(f"File copied from (gdrive) {source_path} to {destination_path}.")
 
             print('Validation time:')
             self.vq_model.eval()

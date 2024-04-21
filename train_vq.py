@@ -83,6 +83,11 @@ if __name__ == "__main__":
     val_split_file = pjoin(opt.data_root, 'val.txt')
 
     opt.vq_arch_option = 'lfq'
+    opt.train_env = 'colab'
+    print(opt)
+    opt.gdrive_save = True
+    opt.demo_run = True
+    
     net = RVQVAE(opt,
                 dim_pose,
                 opt.nb_code,
