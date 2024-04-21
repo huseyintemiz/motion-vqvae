@@ -82,7 +82,7 @@ if __name__ == "__main__":
     train_split_file = pjoin(opt.data_root, 'train.txt')
     val_split_file = pjoin(opt.data_root, 'val.txt')
 
-
+    opt.vq_arch_option = 'lfq'
     net = RVQVAE(opt,
                 dim_pose,
                 opt.nb_code,

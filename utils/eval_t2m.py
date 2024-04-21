@@ -20,8 +20,9 @@ from utils.motion_process import recover_from_ric
 
 
 @torch.no_grad()
-def evaluation_vqvae(out_dir, val_loader, net, writer, ep, best_fid, best_div, best_top1,
+def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_fid, best_div, best_top1,
                      best_top2, best_top3, best_matching, eval_wrapper, save=True, draw=True):
+    print(f"wandb:{wandb_instance}")
     net.eval()
 
     motion_annotation_list = []
@@ -94,6 +95,13 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, ep, best_fid, best_div, b
         writer.add_scalar('./Test/top2', R_precision[1], ep)
         writer.add_scalar('./Test/top3', R_precision[2], ep)
         writer.add_scalar('./Test/matching_score', matching_score_pred, ep)
+
+    # if wandb:
+    print(f" Test_ Logging to wandb. Epoch {ep}")
+    wandb_instance.log({"Val_metric/FID": fid, "Val_metric/Diversity": diversity, "Val_metric/Top1": R_precision[0], "Val_metric/Top2": R_precision[1], "Val_metric/Top3": R_precision[2], "Val_metric/Matching Score": matching_score_pred})  
+
+
+
 
     if fid < best_fid:
         msg = "--> --> \t FID Improved from %.5f to %.5f !!!" % (best_fid, fid)

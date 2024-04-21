@@ -53,53 +53,66 @@ class RVQVAE(nn.Module):
            
           
         }
-        # self.quantizer = ResidualVQ(**rvqvae_config)
+        print(f"args.vq_arch_option: {args.vq_arch_option}")
+        
+        if args.vq_arch_option == 'residual_vq':
+            self.quantizer = ResidualVQ(**rvqvae_config)
 
-        # self.quantizer =  VectorQuantize(
-        #     dim = code_dim,
-        #     use_cosine_sim = True ,
-        #     codebook_size = nb_code,     # codebook size
-        #     decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
-        #     commitment_weight = 1.   # the weight on the commitment loss
-        # )
-
+       
+        elif args.vq_arch_option == 'vq_cos':
+            rvqvae_config['use_cosine_sim'] = True
+            self.quantizer =  VectorQuantize(
+                dim = code_dim,
+                use_cosine_sim = True ,
+                codebook_size = nb_code,     # codebook size
+                decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
+                commitment_weight = 1.   # the weight on the commitment loss
+            )
+        elif args.vq_arch_option == 'vq_orthogonal':
         # Orthogonal regularization loss
-        # self.quantizer = VectorQuantize(
-        #     dim = code_dim,
-        #     codebook_size = nb_code,  
-        #     # accept_image_fmap = True,                   # set this true to be able to pass in an image feature map
-        #     orthogonal_reg_weight = 10,                 # in paper, they recommended a value of 10
-        #     orthogonal_reg_max_codes = 128,             # this would randomly sample from the codebook for the orthogonal regularization loss, for limiting memory usage
-        #     orthogonal_reg_active_codes_only = False    # set this to True if you have a very large codebook, and would only like to enforce the loss on the activated codes per batch
-        # )
+            self.quantizer = VectorQuantize(
+                dim = code_dim,
+                codebook_size = nb_code,  
+                # accept_image_fmap = True,                   # set this true to be able to pass in an image feature map
+                orthogonal_reg_weight = 10,                 # in paper, they recommended a value of 10
+                orthogonal_reg_max_codes = 128,             # this would randomly sample from the codebook for the orthogonal regularization loss, for limiting memory usage
+                orthogonal_reg_active_codes_only = False    # set this to True if you have a very large codebook, and would only like to enforce the loss on the activated codes per batch
+            )
+        elif args.vq_arch_option == 'vq_multihead':
+            # Multi-headed VQ
+            self.quantizer  = VectorQuantize( 
+                dim = code_dim,
+                codebook_size = 8196,                   # a number of papers have shown smaller codebook dimension to be acceptable
+                heads = 8,                          # number of heads to vector quantize, codebook shared across all heads
+                separate_codebook_per_head = True,  # whether to have a separate codebook per head. False would mean 1 shared codebook    
+            )
 
-        # Multi-headed VQ
-        # self.quantizer  = VectorQuantize( 
-        #     dim = code_dim,
-        #     codebook_size = 8196,                   # a number of papers have shown smaller codebook dimension to be acceptable
-        #     heads = 8,                          # number of heads to vector quantize, codebook shared across all heads
-        #     separate_codebook_per_head = True,  # whether to have a separate codebook per head. False would mean 1 shared codebook
+        elif args.vq_arch_option == 'group_residual_vq':
+            self.quantizer = GroupedResidualVQ(
+                dim = code_dim,
+                num_quantizers = 8,      # specify number of quantizers
+                groups = 2,
+                codebook_size = 1024,    # codebook size
+            )
+
+        elif args.vq_arch_option == "residual_lfq":
+            self.quantizer = ResidualLFQ(
+                                dim=512,#quantize_dim
+                                codebook_size = 2**12, # 2**16
+                                num_quantizers = 6 #,
+                                # **vq_kwargs
+                            )
             
-        # )
+        elif args.vq_arch_option == 'lfq':
+            self.quantizer = LFQ(dim=code_dim, codebook_size=nb_code)
 
-        # lfq
-        self.quantizer = ResidualLFQ(
-                            dim=512,#quantize_dim
-                            codebook_size = 2**14, # 2**16
-                            num_quantizers = 6 #,
-                            # **vq_kwargs
-                        )
-
-        # self.quantizer = LFQ(dim=code_dim, codebook_size=nb_code)###denemece 
+        else:
+            raise NotImplementedError
+        
+       
 
 
-
-        # self.quantizer = GroupedResidualVQ(
-        #     dim = code_dim,
-        #     num_quantizers = 8,      # specify number of quantizers
-        #     groups = 2,
-        #     codebook_size = 1024,    # codebook size
-        # )
+       
 
 
     def preprocess(self, x):

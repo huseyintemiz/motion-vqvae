@@ -5,3 +5,4 @@ dataset/KIT-ML/
 **/**__pycache__
 z-others/
 **.DS_Store
+wandb/

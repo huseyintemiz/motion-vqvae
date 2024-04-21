@@ -12,12 +12,36 @@ import numpy as np
 from collections import OrderedDict, defaultdict
 from utils.eval_t2m import evaluation_vqvae
 from utils.utils import print_current_loss
+import wandb
+
 
 import os
 import sys
 
 def def_value():
     return 0.0
+
+WANDB = True
+if WANDB:
+    wandb.login(key='d38b81d9fb39e3997d76dfb03327ad49920445b6')
+    wandb.init(
+                project="motion-vqvae",
+                config={
+                    "epochs": 10,
+                    "batch_size": 128,
+                    "lr": 1e-3,
+                    })
+            
+
+GDRIVE_SAVE = False
+
+if GDRIVE_SAVE:
+    print("Mounting Google Drive...")
+
+    from google.colab import drive
+    import shutil
+
+    drive.mount('/content/drive')
 
 
 class RVQTokenizerTrainer:
@@ -28,6 +52,8 @@ class RVQTokenizerTrainer:
 
         if args.is_train:
             self.logger = SummaryWriter(args.log_dir)
+            self.wandb = wandb
+
             if args.recons_loss == 'l1':
                 self.l1_criterion = torch.nn.L1Loss()
             elif args.recons_loss == 'l1_smooth':
@@ -108,7 +134,7 @@ class RVQTokenizerTrainer:
 
         # sys.exit()
         best_fid, best_div, best_top1, best_top2, best_top3, best_matching, writer = evaluation_vqvae(
-            self.opt.model_dir, eval_val_loader, self.vq_model, self.logger, epoch, best_fid=1000,
+            self.opt.model_dir, eval_val_loader, self.vq_model, self.logger,self.wandb, epoch, best_fid=1000,
             best_div=100, best_top1=0,
             best_top2=0, best_top3=0, best_matching=100,
             eval_wrapper=eval_wrapper, save=False)
@@ -117,8 +143,7 @@ class RVQTokenizerTrainer:
             self.vq_model.train()
             for i, batch_data in enumerate(train_loader):
                 it += 1
-                if it > 200:
-                    break
+               
 
                 if it < self.opt.warm_up_iter:
                     current_lr = self.update_lr_warm_up(it, self.opt.warm_up_iter, self.opt.lr)
@@ -143,19 +168,31 @@ class RVQTokenizerTrainer:
                     # self.logger.add_scalar('val_loss', val_loss, it)
                     # self.l
                     for tag, value in logs.items():
-                        self.logger.add_scalar('Train/%s'%tag, value / self.opt.log_every, it)
+                        self.logger.add_scalar('Train/%s'%tag, value / self.opt.log_every, it) # hus
+                        wandb.log({f"Train/{tag}": value / self.opt.log_every},step=it)
                         mean_loss[tag] = value / self.opt.log_every
                     logs = defaultdict(def_value, OrderedDict())
                     print_current_loss(start_time, it, total_iters, mean_loss, epoch=epoch, inner_iter=i)
 
                 if it % self.opt.save_latest == 0:
                     self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
+                    #copy to gdrive
+                
+                # exit for loop for debugging
+                if i > 500:
+                    break
 
             self.save(pjoin(self.opt.model_dir, 'latest.tar'), epoch, it)
 
             epoch += 1
-            # if epoch % self.opt.save_every_e == 0:
-            #     self.save(pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch)), epoch, total_it=it)
+            if epoch % self.opt.save_every_e == 0:
+                self.save(pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch)), epoch, total_it=it)
+                if GDRIVE_SAVE:
+                    source_path = pjoin(self.opt.model_dir, 'E%04d.tar' % (epoch))
+                    destination_path = '/content/drive/MyDrive/MotionData/motion_mount/sample_data'
+                    # # Copy the file
+                    shutil.copytree(source_path, destination_path)
+                    print(f"File copied from {source_path} to {destination_path}.")
 
             print('Validation time:')
             self.vq_model.eval()
@@ -185,6 +222,16 @@ class RVQTokenizerTrainer:
             self.logger.add_scalar('Val/loss_commit', sum(val_loss_commit) / len(val_loss), epoch)
             # self.logger.add_scalar('Val/loss_perplexity', sum(val_perpexity) / len(val_loss_rec), epoch)
 
+            if WANDB:
+                print(f"VAL _ Logging to wandb")
+                wandb.log({ 'Val/loss': sum(val_loss) / len(val_loss),
+                            'Val/loss_rec': sum(val_loss_rec) / len(val_loss_rec),
+                            'Val/loss_vel': sum(val_loss_vel) / len(val_loss_vel),
+                            'Val/loss_commit': sum(val_loss_commit) / len(val_loss)})
+                        
+                
+              
+
             print('Validation Loss: %.5f Reconstruction: %.5f, Velocity: %.5f, Commit: %.5f' %
                   (sum(val_loss)/len(val_loss), sum(val_loss_rec)/len(val_loss), 
                    sum(val_loss_vel)/len(val_loss), sum(val_loss_commit)/len(val_loss)))
@@ -197,8 +244,9 @@ class RVQTokenizerTrainer:
             #     self.save(pjoin(self.opt.model_dir, 'finest.tar'), epoch, it)
             #     print('Best Validation Model So Far!~')
 
+            print(f'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
             best_fid, best_div, best_top1, best_top2, best_top3, best_matching, writer = evaluation_vqvae(
-                self.opt.model_dir, eval_val_loader, self.vq_model, self.logger, epoch, best_fid=best_fid,
+                self.opt.model_dir, eval_val_loader, self.vq_model, self.logger, self.wandb, epoch, best_fid=best_fid,
                 best_div=best_div, best_top1=best_top1,
                 best_top2=best_top2, best_top3=best_top3, best_matching=best_matching, eval_wrapper=eval_wrapper)
 
