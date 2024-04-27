@@ -34,14 +34,6 @@ if WANDB:
                     })
             
 
-# GDRIVE_SAVE = False
-
-# if GDRIVE_SAVE:
-#     print("Mounting Google Drive...")
-
-#     # from google.colab import drive
-
-#     # drive.mount('/content/drive')
 
 
 class RVQTokenizerTrainer:

@@ -58,16 +58,16 @@ def arg_parse(is_train=False):
     parser.add_argument('--eval_every_e', default=1, type=int, help='save eval results every n epoch')
     # parser.add_argument('--early_stop_e', default=5, type=int, help='early stopping epoch')
     parser.add_argument('--feat_bias', type=float, default=5, help='Layers of GRU')
-    parser.add_argument('--gdrive_save', type=bool, default=False, help='xx')
+    parser.add_argument('--gdrive_save',  action="store_true", help='Enable Google Drive Save')
     parser.add_argument('--train_env', type=str, default='local', help='xx')
-    parser.add_argument('--demo_run', type=bool, default=True, help='xx')
+    parser.add_argument('--demo_run',  action="store_true", help='Fast run for realiablity check')
    
 
 
     parser.add_argument('--which_epoch', type=str, default="all", help='Name of this trial')
 
     ## For Res Predictor only
-    parser.add_argument('--vq_name', type=str, default="rvq_nq6_dc512_nc512_noshare_qdp0.2", help='Name of this trial')
+    # parser.add_argument('--vq_name', type=str, default="rvq_nq6_dc512_nc512_noshare_qdp0.2", help='Name of this trial')
     # parser.add_argument('--n_res', type=int, default=2, help='Name of this trial')
     # parser.add_argument('--do_vq_res', action="store_true")
     parser.add_argument("--seed", default=3407, type=int)

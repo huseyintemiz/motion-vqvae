@@ -31,23 +31,12 @@ class RVQVAE(nn.Module):
                                dilation_growth_rate, activation=activation, norm=norm)
         self.decoder = Decoder(input_width, output_emb_width, down_t, stride_t, width, depth,
                                dilation_growth_rate, activation=activation, norm=norm)
-        # rvqvae_config = {
-        #     'dim':code_dim, 
-        #     'num_quantizers': args.num_quantizers,
-        #     'shared_codebook': args.shared_codebook,
-        #     'quantize_dropout_prob': args.quantize_dropout_prob,
-        #     'quantize_dropout_cutoff_index': 0,
-        #     'nb_code': nb_code,
-        #     'code_dim':code_dim, 
-        #     'args': args,
-        # }
+      
         rvqvae_config = {
             'dim':code_dim, 
             'num_quantizers': args.num_quantizers, 
             'codebook_size':nb_code, 
-         
             'shared_codebook': args.shared_codebook,
-            
             'quantize_dropout': args.quantize_dropout_prob > 0,
             'quantize_dropout_cutoff_index': 0,
         }
@@ -58,7 +47,7 @@ class RVQVAE(nn.Module):
             self.quantizer = ResidualVQ(**rvqvae_config)
 
        
-        elif args.vq_arch_option == 'vq_cos':
+        elif args.vq_arch_option == 'vq_cos': #works
             rvqvae_config['use_cosine_sim'] = True
             self.quantizer =  VectorQuantize(
                 dim = code_dim,
@@ -67,7 +56,7 @@ class RVQVAE(nn.Module):
                 decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
                 commitment_weight = 1.   # the weight on the commitment loss
             )
-        elif args.vq_arch_option == 'vq_orthogonal':
+        elif args.vq_arch_option == 'vq_orthogonal': #works
             # Orthogonal regularization loss
             self.quantizer = VectorQuantize(
                 dim = code_dim,
@@ -77,7 +66,7 @@ class RVQVAE(nn.Module):
                 orthogonal_reg_max_codes = 128,             # this would randomly sample from the codebook for the orthogonal regularization loss, for limiting memory usage
                 orthogonal_reg_active_codes_only = False    # set this to True if you have a very large codebook, and would only like to enforce the loss on the activated codes per batch
             )
-        elif args.vq_arch_option == 'vq_multihead':
+        elif args.vq_arch_option == 'vq_multihead':#works
             # Multi-headed VQ
             self.quantizer  = VectorQuantize( 
                 dim = code_dim,
@@ -86,7 +75,7 @@ class RVQVAE(nn.Module):
                 separate_codebook_per_head = True,  # whether to have a separate codebook per head. False would mean 1 shared codebook    
             )
 
-        elif args.vq_arch_option == 'group_residual_vq':
+        elif args.vq_arch_option == 'group_residual_vq': #works
             self.quantizer = GroupedResidualVQ(
                 dim = code_dim,
                 num_quantizers = 8,      # specify number of quantizers
@@ -94,7 +83,7 @@ class RVQVAE(nn.Module):
                 codebook_size = 1024,    # codebook size
             )
 
-        elif args.vq_arch_option == "residual_lfq":
+        elif args.vq_arch_option == "residual_lfq": #works
             self.quantizer = ResidualLFQ(
                                 dim=512,#quantize_dim
                                 codebook_size = 2**12, # 2**16

@@ -84,3 +84,26 @@ python eval_t2m_vq.py --gpu_id 0 --name rvq_nq6_dc512_nc512_noshare_qdp0.2 --dat
 
 
 python train_vq.py --name rvq_replicate --gpu_id 0 --dataset_name t2m --batch_size 128 --num_quantizers 6  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05
+
+python train_vq.py --name rvq_name_ht4 --gpu_id 0 --dataset_name t2m --batch_size 128 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "lfq" --demo_run --is_continue
+
+
+#vq_cos
+python train_vq.py --name rvq_name_ht6 --gpu_id 0 --dataset_name t2m --batch_size 128 --num_quantizers 6 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --demo_run --is_continue
+
+  "program": "${workspaceFolder}/train_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "rvq_name_ht3",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--batch_size", "64",
+                "--num_quantizers", "6",
+                "--max_epoch", "50",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05",
+                "--train_env","local",
+                "--vq_arch_option", "lfq",
+                // "--gdrive_save",
+                "--demo_run",
+            ],

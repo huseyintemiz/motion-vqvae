@@ -6,3 +6,5 @@ dataset/KIT-ML/
 z-others/
 **.DS_Store
 wandb/
+models/vq_ht/
+LAB/
