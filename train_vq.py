@@ -85,7 +85,7 @@ if __name__ == "__main__":
     # opt.vq_arch_option = 'lfq'
     # opt.train_env = 'colab'
     # opt.gdrive_save = True
-    opt.demo_run = True
+    # opt.demo_run = True
     print(opt)
     
     net = RVQVAE(opt,

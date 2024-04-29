@@ -86,7 +86,7 @@ class RVQVAE(nn.Module):
         elif args.vq_arch_option == "residual_lfq": #works
             self.quantizer = ResidualLFQ(
                                 dim=512,#quantize_dim
-                                codebook_size = 2**12, # 2**16
+                                codebook_size = 2**14, # 2**16
                                 num_quantizers = 6 #,
                                 # **vq_kwargs
                             )
