@@ -53,6 +53,19 @@ class RVQVAE(nn.Module):
                 dim = code_dim,
                 use_cosine_sim = True ,
                 codebook_size = nb_code,     # codebook size
+                
+                decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
+                commitment_weight = 1.   # the weight on the commitment loss
+            )
+        elif args.vq_arch_option == 'vq_cos_ortho': #?
+            rvqvae_config['use_cosine_sim'] = True
+            self.quantizer =  VectorQuantize(
+                dim = code_dim,
+                use_cosine_sim = True ,
+                codebook_size = nb_code,     # codebook size
+                orthogonal_reg_weight = 10,                 # in paper, they recommended a value of 10
+                orthogonal_reg_max_codes = 128,             # this would randomly sample from the codebook for the orthogonal regularization loss, for limiting memory usage
+                orthogonal_reg_active_codes_only = False,
                 decay = 0.8,             # the exponential moving average decay, lower means the dictionary will change faster
                 commitment_weight = 1.   # the weight on the commitment loss
             )
@@ -86,7 +99,7 @@ class RVQVAE(nn.Module):
         elif args.vq_arch_option == "residual_lfq": #works
             self.quantizer = ResidualLFQ(
                                 dim=512,#quantize_dim
-                                codebook_size = 2**14, # 2**16
+                                codebook_size = 2**12, # 2**16
                                 num_quantizers = 6 #,
                                 # **vq_kwargs
                             )

@@ -8,7 +8,7 @@
             "program": "${workspaceFolder}/train_vq.py",
             "console": "integratedTerminal",
             "args": [
-                "--name", "rvq_name_ht3",
+                "--name", "vq_cos_ortho",
                 "--gpu_id", "0",
                 "--dataset_name", "t2m",
                 "--batch_size", "256",
@@ -17,7 +17,7 @@
                 "--quantize_dropout_prob", "0.2",
                 "--gamma", "0.05",
                 "--train_env","local",
-                "--vq_arch_option", "residual_lfq",
+                "--vq_arch_option", "vq_cos_ortho",
                 // "--gdrive_save",
                 "--demo_run",
             ],
@@ -26,32 +26,32 @@
             }
         },
         {
-            "name": "Eval VQ",
+            "name": "Eval residual_lfq",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/eval_t2m_vq.py",
             "console": "integratedTerminal",
             "args": [
-                "--name", "rvq_name_ht5",
+                "--name", "residual_lfq",
                 "--gpu_id", "0",
                 "--dataset_name", "t2m",
-                "--ext", "rvq_name_ht5"
+                "--ext", "residual_lfq"
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"
             }
         },
         {
-            "name": "Eval VQ Model",
+            "name": "Eval residual_vq",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/eval_t2m_vq.py",
             "console": "integratedTerminal",
             "args": [
-                "--name", "rvq_name_ht5",
+                "--name", "residual_vq_replicate",
                 "--gpu_id", "0",
                 "--dataset_name", "t2m",
-                "--ext", "rvq_name_ht5"
+                "--ext", "residual_vq_replicate"
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"
