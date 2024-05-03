@@ -143,8 +143,8 @@ class RVQTokenizerTrainer:
         best_fid, best_div, best_top1, best_top2, best_top3, best_matching, writer = evaluation_vqvae(
             self.opt.model_dir, eval_val_loader, self.vq_model, self.logger,self.wandb, epoch, best_fid=1000,
             best_div=100, best_top1=0,
-            best_top2=0, best_top3=0, best_matching=100,
-            eval_wrapper=eval_wrapper, save=False)
+            best_top2=0, best_top3=0, best_matching=100,exp_opt=self.opt,
+            eval_wrapper=eval_wrapper, save=True)
 
         while epoch < self.opt.max_epoch:
             self.vq_model.train()
@@ -269,7 +269,7 @@ class RVQTokenizerTrainer:
             best_fid, best_div, best_top1, best_top2, best_top3, best_matching, writer = evaluation_vqvae(
                 self.opt.model_dir, eval_val_loader, self.vq_model, self.logger, self.wandb, epoch, best_fid=best_fid,
                 best_div=best_div, best_top1=best_top1,
-                best_top2=best_top2, best_top3=best_top3, best_matching=best_matching, eval_wrapper=eval_wrapper)
+                best_top2=best_top2, best_top3=best_top3,exp_opt=self.opt,best_matching=best_matching, eval_wrapper=eval_wrapper)
 
 
             if epoch % self.opt.eval_every_e == 0:

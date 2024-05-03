@@ -84,17 +84,25 @@ class RVQVAE(nn.Module):
             self.quantizer  = VectorQuantize( 
                 dim = code_dim,
                 codebook_size = 8196,                   # a number of papers have shown smaller codebook dimension to be acceptable
-                heads = 8,                          # number of heads to vector quantize, codebook shared across all heads
+                heads = self.opt.vq_head,   #8                       # number of heads to vector quantize, codebook shared across all heads
                 separate_codebook_per_head = True,  # whether to have a separate codebook per head. False would mean 1 shared codebook    
             )
 
         elif args.vq_arch_option == 'group_residual_vq': #works
+            # self.quantizer = GroupedResidualVQ(
+            #     dim = code_dim,
+            #     num_quantizers = 8,      # specify number of quantizers
+            #     groups = 2,
+            #     codebook_size = 1024,    # codebook size
+            # )
+            print(f"GroupedResidualVQ: args.num_quantizers: {args.num_quantizers},code_dim: {code_dim}, nb_code: {nb_code},num_group:{args.vq_group}")
             self.quantizer = GroupedResidualVQ(
                 dim = code_dim,
-                num_quantizers = 8,      # specify number of quantizers
-                groups = 2,
-                codebook_size = 1024,    # codebook size
+                num_quantizers = args.num_quantizers,      # specify number of quantizers
+                groups = args.vq_group, #2,
+                codebook_size = nb_code,    # codebook size
             )
+            
 
         elif args.vq_arch_option == "residual_lfq": #works
             self.quantizer = ResidualLFQ(

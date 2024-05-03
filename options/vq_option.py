@@ -25,7 +25,9 @@ def arg_parse(is_train=False):
     parser.add_argument('--recons_loss', type=str, default='l1_smooth', help='reconstruction loss')
 
     ## vqvae arch
-    parser.add_argument("--vq_arch_option", type=str, default='residual_vq', help="vq architecture option")        
+    parser.add_argument("--vq_arch_option", type=str, default='residual_vq', help="vq architecture option") 
+    parser.add_argument("--vq_group", type=int, default=2, help="vq group number") 
+    parser.add_argument("--vq_head", type=int, default=8, help="vq head in multihead")              
 
     parser.add_argument("--code_dim", type=int, default=512, help="embedding dimension")
     parser.add_argument("--nb_code", type=int, default=512, help="nb of embedding")

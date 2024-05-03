@@ -8,6 +8,7 @@ from utils.metrics import *
 import torch.nn.functional as F
 # import visualization.plot_3d_global as plot_3d
 from utils.motion_process import recover_from_ric
+import shutil
 #
 #
 # def tensorborad_add_video_xyz(writer, xyz, nb_iter, tag, nb_vis=4, title_batch=None, outname=None):
@@ -21,8 +22,10 @@ from utils.motion_process import recover_from_ric
 
 @torch.no_grad()
 def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_fid, best_div, best_top1,
-                     best_top2, best_top3, best_matching, eval_wrapper, save=True, draw=True):
+                     best_top2, best_top3, best_matching, eval_wrapper,exp_opt, save=True, draw=True):
     print(f"wandb:{wandb_instance}")
+    gdrive_save = exp_opt.gdrive_save
+    
     net.eval()
 
     motion_annotation_list = []
@@ -109,6 +112,12 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_
         best_fid = fid
         if save:
             torch.save({'vq_model': net.state_dict(), 'ep': ep}, os.path.join(out_dir, 'net_best_fid.tar'))
+            
+            if gdrive_save:
+                destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{exp_opt.name}/'
+                source_path = f"{out_dir}"+'net_best_fid.tar'
+                shutil.copy(source_path, destination_path)
+                print(f"File copied from (gdrive) {source_path} to {destination_path}.")
 
     if abs(diversity_real - diversity) < abs(diversity_real - best_div):
         msg = "--> --> \t Diversity Improved from %.5f to %.5f !!!"%(best_div, diversity)
@@ -140,6 +149,12 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_
         best_matching = matching_score_pred
         if save:
             torch.save({'vq_model': net.state_dict(), 'ep': ep}, os.path.join(out_dir, 'net_best_mm.tar'))
+            
+            if gdrive_save:
+                destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{exp_opt.name}/'
+                source_path = f"{out_dir}"+'net_best_mm.tar'
+                shutil.copy(source_path, destination_path)
+                print(f"File copied from (gdrive) {source_path} to {destination_path}.")
 
     # if save:
     #     torch.save({'net': net.state_dict()}, os.path.join(out_dir, 'net_last.pth'))
