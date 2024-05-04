@@ -115,7 +115,7 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_
             
             if gdrive_save:
                 destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{exp_opt.name}/'
-                source_path = f"{out_dir}"+'net_best_fid.tar'
+                source_path = f"{out_dir}/"+'net_best_fid.tar'
                 shutil.copy(source_path, destination_path)
                 print(f"File copied from (gdrive) {source_path} to {destination_path}.")
 
@@ -152,7 +152,7 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_
             
             if gdrive_save:
                 destination_path = f'/content/drive/MyDrive/MotionData/motion_mount/{exp_opt.name}/'
-                source_path = f"{out_dir}"+'net_best_mm.tar'
+                source_path = f"{out_dir}/"+'net_best_mm.tar'
                 shutil.copy(source_path, destination_path)
                 print(f"File copied from (gdrive) {source_path} to {destination_path}.")
 

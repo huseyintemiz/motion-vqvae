@@ -144,7 +144,7 @@ class RVQTokenizerTrainer:
             self.opt.model_dir, eval_val_loader, self.vq_model, self.logger,self.wandb, epoch, best_fid=1000,
             best_div=100, best_top1=0,
             best_top2=0, best_top3=0, best_matching=100,exp_opt=self.opt,
-            eval_wrapper=eval_wrapper, save=True)
+            eval_wrapper=eval_wrapper, save=False)
 
         while epoch < self.opt.max_epoch:
             self.vq_model.train()
