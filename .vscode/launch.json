@@ -2,6 +2,62 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Train Transformer VQ Model(GroupResQ)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_t2m_transformer_grp.py",
+            "console": "integratedTerminal",
+            // "justMyCode": false,
+            "args": [
+                "--name", "trans_group",
+                "--vq_name","group_residual_vqnb1024",
+                "--gpu_id", "0",
+                "--dataset_name", "kit",
+                "--batch_size", "64",
+                
+                // "--quantize_dropout_prob", "0.2",
+                // "--num_quantizers", "8",
+                // "--max_epoch", "50",
+               
+                // "--gamma", "0.05",
+                // "--train_env","local",
+                // "--nb_code","1024",
+                // "--vq_arch_option", "group_residual_vq",
+                // "--gdrive_save",
+                // "--demo_run",
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Train Transformer VQ Model",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_t2m_transformer_grp.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "trans_group",
+                "--vq_name","rvq_nq6_dc512_nc512_noshare_qdp0.2_k",
+                "--gpu_id", "0",
+                "--dataset_name", "kit",
+                "--batch_size", "64",
+                // "--quantize_dropout_prob", "0.2",
+                // "--num_quantizers", "6",
+                "--max_epoch", "50",
+               
+                // "--gamma", "0.05",
+                // "--train_env","local",
+                // "--nb_code","1024",
+                // "--vq_arch_option", "group_residual_vq",
+                // "--gdrive_save",
+                // "--demo_run",
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
             "name": "Train VQ Model(GroupResQ)",
             "type": "python",
             "request": "launch",
@@ -12,8 +68,33 @@
                 "--gpu_id", "0",
                 "--dataset_name", "t2m",
                 "--batch_size", "256",
-                "--num_quantizers", "6",
+                "--num_quantizers", "8",
                 "--max_epoch", "50",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05",
+                "--train_env","local",
+                "--nb_code","1024",
+                "--vq_arch_option", "group_residual_vq",
+                // "--gdrive_save",
+                // "--demo_run",
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Train VQ Model(GroupResQ)KIT",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "group_residual_vq",
+                "--gpu_id", "0",
+                "--dataset_name", "kit",
+                "--batch_size", "256",
+                "--num_quantizers", "8",
+                "--max_epoch", "2",
                 "--quantize_dropout_prob", "0.2",
                 "--gamma", "0.05",
                 "--train_env","local",
@@ -53,7 +134,96 @@
                 "--gpu_id", "0",
                 "--vq_arch_option", "residual_vq",
                 "--dataset_name", "t2m",
-                "--ext", "residual_vq_replicate"
+                "--ext", "residual_vq_replicate",
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+
+        
+        {
+            "name": "Eval residual_vq(official)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval_t2m_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "rvq_nq6_dc512_nc512_noshare_qdp0.2",
+                "--gpu_id", "0",
+                "--vq_arch_option", "residual_vq2",
+                "--dataset_name", "t2m",
+                "--nb_code","512",
+                "--code_dim","512",
+                "--num_quantizers","6",
+                "--ext", "rvq_nq6_dc512_nc512_noshare_qdp0.2",
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Eval group_residual_vqKIT",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval_t2m_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "group_residual_vqnb1024",
+                "--gpu_id", "0",
+                "--vq_arch_option", "group_residual_vq",
+                "--dataset_name", "kit",
+                "--ext", "group_residual_vq",
+                "--nb_code","1024",
+                "--code_dim","512",
+                "--num_quantizers","8",
+                "--vq_group","2",
+            
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Eval group_residual_vq",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval_t2m_vq.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "group_residual_vq",
+                "--gpu_id", "0",
+                "--vq_arch_option", "group_residual_vq",
+                "--dataset_name", "t2m",
+                "--ext", "group_residual_vq",
+                "--nb_code","1024",
+                "--code_dim","512",
+                "--num_quantizers","8",
+                "--vq_group","2",
+            
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Eval group_residual_vq_gr8",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/eval_t2m_vq.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--name", "group_residual_vqnb1024gp8",
+                "--gpu_id", "0",
+                "--vq_arch_option", "group_residual_vq",
+                "--dataset_name", "t2m",
+                "--ext", "group_residual_vq",
+                "--nb_code","1024",
+                "--code_dim","512",
+                "--num_quantizers","8",
+                "--vq_group","8",
+            
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"
@@ -104,6 +274,23 @@
                 "--gpu_id", "0",
                 "--dataset_name", "t2m",
                 "--ext", "residual_lfq"
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "train_t2m_transformer",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_t2m_transformer.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--name", "mtrans_name",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--batch_size", "64",
+                "--vq_name", "residual_vq_replicate"
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1"

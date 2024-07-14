@@ -118,4 +118,111 @@ python train_vq.py --name residual_vq_replicate  --gpu_id 0 --dataset_name t2m -
   nohup python train_vq.py --name group_residual_vqnb1024  --gpu_id 0 --dataset_name t2m --batch_size 256 --num_quantizers 6  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 &
 
 
-python train_vq.py --name group_residual_vqnb1024  --gpu_id 0 --dataset_name t2m --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 512 --demo_run
+python train_vq.py --name group_residual_vqnb1024  --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 512
+
+
+nohup python train_vq.py --name group_residual_vq  --gpu_id 0 --dataset_name t2m --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 512 --is_continue &
+
+
+python train_vq.py --name vq_multihead  --gpu_id 0 --dataset_name t2m --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "vq_multihead" --nb_code 1024 --code_dim 512 --demo_run
+
+
+python train_vq.py --name vq_multihead  --gpu_id 0 --dataset_name t2m --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "vq_multihead" --nb_code 1024 --code_dim 512 --demo_run
+
+      "--name", "group_residual_vq",
+                "--gpu_id", "0",
+                "--dataset_name", "t2m",
+                "--batch_size", "256",
+                "--num_quantizers", "8",
+                "--max_epoch", "50",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05",
+                "--train_env","local",
+                "--nb_code","1024",
+                "--vq_arch_option", "group_residual_vq",
+                // "--gdrive_save",
+                // "--demo_run",
+python train_vq.py --name group_residual_vq --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 512 --demo_run
+
+
+
+
+python train_vq.py --name group_residual_vq --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 512 --demo_run
+
+
+python train_t2m_transformer.py --name mtrans_group --gpu_id 0 --dataset_name kit --batch_size 64 --vq_name group_residual_vqnb1024 --num_quantizers 8  --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --vq_arch_option "group_residual_vq"
+
+
+python train_t2m_transformer.py --name mtrans_group --gpu_id 0 --dataset_name kit --batch_size 64 --vq_name rvq_nq6_dc512_nc512_noshare_qdp0.2_k  --max_epoch 50
+
+python train_t2m_transformer_grp.py --name mtrans_group --gpu_id 0 --dataset_name kit --batch_size 64 --vq_name rvq_nq6_dc512_nc512_noshare_qdp0.2_k  --max_epoch 50 --vq_arch_option residual_vq
+
+python train_t2m_transformer_grp.py --name mtrans_group --gpu_id 0 --dataset_name kit --batch_size 64 --vq_name rvq_nq6_dc512_nc512_noshare_qdp0.2_k  --max_epoch 50
+
+python train_t2m_transformer_grp.py --name mtrans_group --gpu_id 0 --dataset_name kit --batch_size 64 --vq_name group_residual_vqnb1024  --max_epoch 50 --vq_arch_option group_residual_vq
+
+
+import torch
+x = torch.randint(0, 512, (8, 32, 49,8))
+self.quantizer.get_codes_from_indices(all_indices)
+self.get_codes_from_indices(all_indices)
+
+
+
+[8, 8, 32, 49, 64])
+
+Validation time:
+Validation loss:4.818, accuracy:0.172
+ep/it:301-  31 niter: 20500  184m 10s (- 121m 17s) completed: 60%) loss: 2.1573  acc: 0.4373  lr: 0.0002 
+Validation time:
+Validation loss:5.026, accuracy:0.166
+ep/it:302-  13 niter: 20550  184m 40s (- 120m 51s) completed: 60%) loss: 2.1632  acc: 0.4322  lr: 0.0002 
+ep/it:302-  63 niter: 20600  185m 1s (- 120m 21s) completed: 60%) loss: 2.1334  acc: 0.4432  lr: 0.0002 
+Validation time:
+Validation loss:4.909, accuracy:0.171
+ep/it:303-  45 niter: 20650  185m 29s (- 119m 55s) completed: 60%) loss: 2.1578  acc: 0.4378  lr: 0.0002 
+Validation time:
+
+
+
+                "--name", "group_residual_vq",
+                "--gpu_id", "0",
+                "--dataset_name", "kit",
+                "--batch_size", "256",
+                "--num_quantizers", "8",
+                "--max_epoch", "2",
+                "--quantize_dropout_prob", "0.2",
+                "--gamma", "0.05",
+                "--train_env","local",
+                "--nb_code","1024",
+                "--vq_arch_option", "group_residual_vq",
+
+  python train_vq.py --name grvq_q8_g2_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8 --vq_group 2 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local"  --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 
+
+
+
+  "codebook_size": self.opt.nb_code, # 512,1024
+                                "code_dim": self.opt.code_dim, # 512,1024
+
+                                "num_quantizers" : self.opt.num_quantizers, #2,4,8
+
+                                "group_num": self.opt.vq_group, # 2,4,8
+##### cs1024
+# grvq_q8_g2_cs1024_cd1024
+nohup python train_vq.py --name grvq_q8_g2_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8 --vq_group 2 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q8_g2_cs1024_cd1024_output.txt 2>&1
+
+# grvq_q8_g4_cs1024_cd1024
+nohup python train_vq.py --name grvq_q8_g4_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8 --vq_group 4 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q8_g4_cs1024_cd1024_output.txt 2>&1
+
+# grvq_q8_g8_cs1024_cd1024
+nohup python train_vq.py --name grvq_q8_g8_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 8 --vq_group 8 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q8_g8_cs1024_cd1024_output.txt 2>&1
+
+# grvq_q4_g2_cs1024_cd1024
+nohup python train_vq.py --name grvq_q4_g2_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 4 --vq_group 2 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q4_g2_cs1024_cd1024_output.txt 2>&1
+
+# grvq_q4_g4_cs1024_cd1024
+nohup python train_vq.py --name grvq_q4_g4_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 4 --vq_group 4 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q4_g4_cs1024_cd1024_output.txt 2>&1
+
+# grvq_q4_g8_cs1024_cd1024
+nohup python train_vq.py --name grvq_q4_g8_cs1024_cd1024 --gpu_id 0 --dataset_name kit --batch_size 256 --num_quantizers 4 --vq_group 8 --max_epoch 50 --quantize_dropout_prob 0.2 --gamma 0.05 --train_env "local" --vq_arch_option "group_residual_vq" --nb_code 1024 --code_dim 1024 > nohup_grvq_q4_g8_cs1024_cd1024_output.txt 2>&1
+

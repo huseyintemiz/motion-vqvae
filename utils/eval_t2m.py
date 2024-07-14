@@ -123,15 +123,15 @@ def evaluation_vqvae(out_dir, val_loader, net, writer, wandb_instance, ep, best_
         msg = "--> --> \t Diversity Improved from %.5f to %.5f !!!"%(best_div, diversity)
         if draw: print(msg)
         best_div = diversity
-        # if save:
-        #     torch.save({'net': net.state_dict()}, os.path.join(out_dir, 'net_best_div.pth'))
+        if save:
+            torch.save({'net': net.state_dict()}, os.path.join(out_dir, 'net_best_div.pth'))
 
     if R_precision[0] > best_top1:
         msg = "--> --> \t Top1 Improved from %.5f to %.5f !!!" % (best_top1, R_precision[0])
         if draw: print(msg)
         best_top1 = R_precision[0]
-        # if save:
-        #     torch.save({'vq_model': net.state_dict(), 'ep':ep}, os.path.join(out_dir, 'net_best_top1.tar'))
+        if save:
+            torch.save({'vq_model': net.state_dict(), 'ep':ep}, os.path.join(out_dir, 'net_best_top1.tar'))
 
     if R_precision[1] > best_top2:
         msg = "--> --> \t Top2 Improved from %.5f to %.5f!!!" % (best_top2, R_precision[1])
@@ -427,12 +427,12 @@ def evaluation_res_plus_l1(val_loader, vq_model, res_model, repeat_id, eval_wrap
     return fid, diversity, R_precision, matching_score_pred, l1_dist
 
 @torch.no_grad()
-def evaluation_mask_transformer(out_dir, val_loader, trans, vq_model, writer, ep, best_fid, best_div,
+def evaluation_mask_transformer(out_dir, val_loader, trans_list, vq_model, writer, ep, best_fid, best_div,
                            best_top1, best_top2, best_top3, best_matching, eval_wrapper, plot_func,
                            save_ckpt=False, save_anim=False):
-
+    trans_0,trans_1 = trans_list
     def save(file_name, ep):
-        t2m_trans_state_dict = trans.state_dict()
+        t2m_trans_state_dict = trans_0.state_dict()
         clip_weights = [e for e in t2m_trans_state_dict.keys() if e.startswith('clip_model.')]
         for e in clip_weights:
             del t2m_trans_state_dict[e]
@@ -444,7 +444,8 @@ def evaluation_mask_transformer(out_dir, val_loader, trans, vq_model, writer, ep
         }
         torch.save(state, file_name)
 
-    trans.eval()
+    trans_0.eval()
+    trans_1.eval()
     vq_model.eval()
 
     motion_annotation_list = []
@@ -473,11 +474,15 @@ def evaluation_mask_transformer(out_dir, val_loader, trans, vq_model, writer, ep
         # num_joints = 21 if pose.shape[-1] == 251 else 22
 
         # (b, seqlen)
-        mids = trans.generate(clip_text, m_length//4, time_steps, cond_scale, temperature=1)
+        # mids,mids2 = trans.generate(clip_text, m_length//4, time_steps, cond_scale, temperature=1)# en heyecanli yer!!! text- > motion codes
+        mids_0 = trans_0.generate(clip_text, m_length//4, time_steps, cond_scale, temperature=1)
+        mids_1 = trans_1.generate(clip_text, m_length//4, time_steps, cond_scale, temperature=1)
 
         # motion_codes = motion_codes.permute(0, 2, 1)
-        mids.unsqueeze_(-1)
-        pred_motions = vq_model.forward_decoder(mids)
+        # mids.unsqueeze_(-1)
+        # mids2.unsqueeze_(-1)
+        pred_motions = vq_model.forward_decoder(mids_0,mids_1) ### huseyin, pred_motions shape ne bak
+        
 
         et_pred, em_pred = eval_wrapper.get_co_embeddings(word_embeddings, pos_one_hots, sent_len, pred_motions.clone(),
                                                           m_length)
@@ -614,7 +619,7 @@ def evaluation_res_transformer(out_dir, val_loader, trans, vq_model, writer, ep,
         bs, seq = pose.shape[:2]
         # num_joints = 21 if pose.shape[-1] == 251 else 22
 
-        code_indices, all_codes = vq_model.encode(pose)
+        code_indices, all_codes = vq_model.encode(pose) #huseyin 
         # (b, seqlen)
         if ep == 0:
             pred_ids = code_indices[..., 0:1]

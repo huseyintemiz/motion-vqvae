@@ -27,11 +27,20 @@ if WANDB:
     wandb.login(key='d38b81d9fb39e3997d76dfb03327ad49920445b6')
     wandb.init(
                 project="motion-vqvae",
-                config={
-                    "epochs": 10,
-                    "batch_size": 128,
-                    "lr": 1e-3,
-                    })
+                # config={
+                #     "epochs": 10,
+                #     "batch_size": 128,
+                #     "lr": 1e-3,
+                #     })
+                config = {
+                    "codebook_size": 512, # 512,1024
+                    "code_dim":  512, # 512,1024
+
+                    "num_quantizers" : 2, #2,4,8
+
+                    "group_num": 2, # 2,4,8
+                }
+                )
             
 
 
@@ -44,7 +53,27 @@ class RVQTokenizerTrainer:
 
         if args.is_train:
             self.logger = SummaryWriter(args.log_dir)
-            self.wandb = wandb
+            
+            if WANDB:
+                wandb.login(key='d38b81d9fb39e3997d76dfb03327ad49920445b6')
+                wandb.init(
+                            project="motion-vqvae",
+                            # config={
+                            #     "epochs": 10,
+                            #     "batch_size": 128,
+                            #     "lr": 1e-3,
+                            #     })
+                            config = {
+                                "codebook_size": self.opt.nb_code, # 512,1024
+                                "code_dim": self.opt.code_dim, # 512,1024
+
+                                "num_quantizers" : self.opt.num_quantizers, #2,4,8
+
+                                "group_num": self.opt.vq_group, # 2,4,8
+                            }
+                            )
+            
+                self.wandb = wandb
 
             if args.recons_loss == 'l1':
                 self.l1_criterion = torch.nn.L1Loss()
@@ -251,8 +280,6 @@ class RVQTokenizerTrainer:
                             'Val/loss_commit': sum(val_loss_commit) / len(val_loss)})
                         
                 
-              
-
             print('Validation Loss: %.5f Reconstruction: %.5f, Velocity: %.5f, Commit: %.5f' %
                   (sum(val_loss)/len(val_loss), sum(val_loss_rec)/len(val_loss), 
                    sum(val_loss_vel)/len(val_loss), sum(val_loss_commit)/len(val_loss)))

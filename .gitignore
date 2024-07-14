@@ -8,3 +8,6 @@ z-others/
 wandb/
 models/vq_ht/
 LAB/
+pdf/*
+nohup*
+nohup.out

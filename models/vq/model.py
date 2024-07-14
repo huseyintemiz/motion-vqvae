@@ -5,7 +5,7 @@ from models.vq.encdec import Encoder, Decoder
 # from models.vq.residual_vq import ResidualVQ
 
 from vector_quantize_pytorch import ResidualVQ,ResidualLFQ,LFQ,VectorQuantize,GroupedResidualVQ,RandomProjectionQuantizer
-
+import torch
     
 class RVQVAE(nn.Module):
     def __init__(self,
@@ -41,7 +41,7 @@ class RVQVAE(nn.Module):
             'quantize_dropout_cutoff_index': 0,
         }
         
-        print(f"args.vq_arch_option: {args.vq_arch_option}")
+        # print(f"args.vq_arch_option: {args.vq_arch_option}")
         
         if args.vq_arch_option == 'residual_vq':
             self.quantizer = ResidualVQ(**rvqvae_config)
@@ -101,6 +101,7 @@ class RVQVAE(nn.Module):
                 num_quantizers = args.num_quantizers,      # specify number of quantizers
                 groups = args.vq_group, #2,
                 codebook_size = nb_code,    # codebook size
+                quantize_dropout = args.quantize_dropout_prob > 0,
             )
             
 
@@ -118,11 +119,6 @@ class RVQVAE(nn.Module):
         else:
             raise NotImplementedError
         
-       
-
-
-       
-
 
     def preprocess(self, x):
         # (bs, T, Jx3) -> (bs, Jx3, T)
@@ -134,17 +130,32 @@ class RVQVAE(nn.Module):
         x = x.permute(0, 2, 1)
         return x
 
-    def encode(self, x):
+    def encode(self, x): ### transformer icin de kullanilacak
         N, T, _ = x.shape
         x_in = self.preprocess(x)
         x_encoder = self.encoder(x_in)
         # print(x_encoder.shape)
-        code_idx, all_codes = self.quantizer.quantize(x_encoder, return_latent=True)
+        # code_idx, all_codes = self.quantizer.quantize(x_encoder, return_latent=True)
+        x_encoder = x_encoder.permute(0, 2, 1)
+        x_quantized, code_idx, all_loss = self.quantizer(x_encoder)
+        all_codes = self.quantizer.get_codes_from_indices(code_idx) # code idx (torch.Size([2, 64, 49, 8]))-> all_codes (torch.Size([2, 8, 64, 49, 256])
+        
+        #huso
+        # code_idx = code_idx.permute(1, 2, 3, 0).reshape(64, 49, -1)
+        
+        
+        # huso
+        # Reshape to concatenate along the last dimension
+        all_codes = all_codes.view(2, 8, 64, 49, 256)  # Ensure the tensor is correctly shaped
+
+        # Concatenate along the last dimension (256 -> 512)
+        all_codes = all_codes.permute(1, 2, 3, 0, 4).reshape(8, 64, 49, 512)
+        
         # print(code_idx.shape)
         # code_idx = code_idx.view(N, -1)
         # (N, T, Q)
         # print()
-        return code_idx, all_codes
+        return code_idx, all_codes # all codes 8,64,49,512  istedigim gibi ama code idx tam istedigim gibi degil.
 
     def forward(self, x):
         x_in = self.preprocess(x)
@@ -159,6 +170,9 @@ class RVQVAE(nn.Module):
         #                                                                 force_dropout_index=0) #TODO hardcode
         # x_quantized, code_idx, all_loss = self.quantizer(x_encoder, sample_codebook_temp=0.5)# for residual vq
         x_quantized, code_idx, all_loss = self.quantizer(x_encoder)
+        
+        #husoooo
+        x_d = self.quantizer.get_codes_from_indices(code_idx)
 # 
         #new  ht 
         x_quantized = self.preprocess(x_quantized)
@@ -169,13 +183,38 @@ class RVQVAE(nn.Module):
         # x_out = self.postprocess(x_decoder)
         return x_out, all_loss
 
-    def forward_decoder(self, x):
+    def forward_decoder_orj(self, x): ### huseyin group residual vq icin fixle G,B,T (2, 64,48)
+        
         x_d = self.quantizer.get_codes_from_indices(x)
         # x_d = x_d.view(1, -1, self.code_dim).permute(0, 2, 1).contiguous()
         x = x_d.sum(dim=0).permute(0, 2, 1)
 
         # decoder
         x_out = self.decoder(x)
+        # x_out = self.postprocess(x_decoder)
+        return x_out
+    
+    def forward_decoder(self, x1,x2): ### huseyin group residual vq icin fixle G,B,T (2, 64,48)
+        
+        x1_ = x1.unsqueeze(0)
+        x2_ = x2.unsqueeze(0)
+        indi = torch.cat((x1_,x2_),dim=0).unsqueeze(-1)
+
+        # Assuming my_tensor is your tensor
+        myindX = indi.repeat(1, 1, 1, 8)
+
+    
+        indix = torch.where ( myindX==1024,1023,myindX)
+        indix = self.quantizer.get_codes_from_indices(indix) 
+        ### 1024 indices olarak alma.
+        indixxx = indix.sum(dim=1).permute(1,2,3,0)
+        B,T = indixxx.shape[0],indixxx.shape[1]
+        ind = indixxx.reshape(B,T,-1)
+        ind = ind.permute(0, 2, 1)
+    
+        
+        # decoder
+        x_out = self.decoder(ind)
         # x_out = self.postprocess(x_decoder)
         return x_out
 
@@ -214,3 +253,5 @@ class LengthEstimator(nn.Module):
 
     def forward(self, text_emb):
         return self.output(text_emb)
+    
+

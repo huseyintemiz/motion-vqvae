@@ -72,6 +72,9 @@ if __name__ == "__main__":
         #     continue
         # if not file.startswith('net_best_fid'):
         #     continue
+        # if file.startswith('E00'):
+        #     continue
+        
         if args.which_epoch != "all" and args.which_epoch not in file:
             continue
         print(file)

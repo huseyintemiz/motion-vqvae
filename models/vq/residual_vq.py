@@ -25,7 +25,7 @@ def round_up_multiple(num, mult):
 
 # main class
 
-class ResidualVQ(nn.Module):
+class ResidualVQ2(nn.Module):
     """ Follows Algorithm 1. in https://arxiv.org/pdf/2107.03312.pdf """
     def __init__(
         self,
